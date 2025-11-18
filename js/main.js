@@ -627,7 +627,7 @@ window.PoolManager = (function () {
         try { await loadAtlasManifest('assets/atlas/manifest.json'); } catch (e) { /* ignore */ }
 
         updateTopbar();
-        renderResults();
+        // renderResults();
         // 自动复制开关初始化
         try {
             const toggle = document.getElementById('auto-copy-toggle');
@@ -653,10 +653,15 @@ window.PoolManager = (function () {
     }
 
     // 复制到剪贴板（优先使用 navigator.clipboard）
-    function copyToClipboard(text) {
+    async function copyToClipboard(text) {
         if (!text) return Promise.resolve(false);
         if (navigator.clipboard && navigator.clipboard.writeText) {
-            return navigator.clipboard.writeText(text).then(() => true).catch(() => false);
+            try {
+                await navigator.clipboard.writeText(text);
+                return true;
+            } catch {
+                return false;
+            }
         }
         return new Promise((resolve) => {
             try {
@@ -728,11 +733,20 @@ window.PoolManager = (function () {
 })();
 
 // 启动（等待异步 init 完成以避免 race 导致回退加载单图）
-window.addEventListener('DOMContentLoaded', async () => {
-    try {
-        await window.PoolManager.init();
-    } catch (e) {
-        console.warn('PoolManager.init error', e);
-        // 尽量让页面继续工作，即便 atlas 加载/解析异常
-    }
+window.addEventListener("DOMContentLoaded", () => {
+    // 延迟到所有池子注册完
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            loadHistorySafe();
+        });
+    });
 });
+
+function loadHistorySafe() {
+    try {
+        renderResults(); // 原本的渲染函数
+    } catch (e) {
+        console.warn("历史记录加载失败（可能是首屏图片未准备好），已自动忽略", e);
+    }
+}
+
