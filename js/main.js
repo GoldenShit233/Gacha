@@ -621,8 +621,11 @@ window.PoolManager = (function () {
         return el;
     }
 
-    // 初始化
-    function init() {
+    // 初始化：先加载 atlas manifest，再执行其余初始化（确保图标使用 atlas 而非回退单图）
+    async function init() {
+        // 尝试加载 manifest；若不存在也继续（回退到单图）
+        try { await loadAtlasManifest('assets/atlas/manifest.json'); } catch (e) { /* ignore */ }
+
         updateTopbar();
         renderResults();
         // 自动复制开关初始化
@@ -647,8 +650,6 @@ window.PoolManager = (function () {
                 }
             };
         }
-        // 异步加载 atlas manifest（存在则立即生效）
-        try { loadAtlasManifest('assets/atlas/manifest.json'); } catch (e) { /* ignore */ }
     }
 
     // 复制到剪贴板（优先使用 navigator.clipboard）
@@ -726,5 +727,12 @@ window.PoolManager = (function () {
     return { register, init };
 })();
 
-// 启动
-window.addEventListener('DOMContentLoaded', () => { window.PoolManager.init(); });
+// 启动（等待异步 init 完成以避免 race 导致回退加载单图）
+window.addEventListener('DOMContentLoaded', async () => {
+    try {
+        await window.PoolManager.init();
+    } catch (e) {
+        console.warn('PoolManager.init error', e);
+        // 尽量让页面继续工作，即便 atlas 加载/解析异常
+    }
+});
