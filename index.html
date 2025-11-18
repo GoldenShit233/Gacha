@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>以撒的结合-道具寻访</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header id="topbar" class="topbar">
+    <div class="topbar-left">道具寻访</div>
+    <div class="topbar-right" style="display:flex;gap:12px;align-items:center;">
+      <div>累计消耗: <span id="total-cost">0</span></div>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;">
+        <input type="checkbox" id="auto-copy-toggle" />
+        自动复制
+      </label>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="pools" class="pools"></section>
+  </main>
+
+  <!-- 动画/弹窗容器 -->
+  <div id="modal-root"></div>
+
+  <!-- 底部结果列表 -->
+  <div id="result-list" class="result-list">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <h3>抽卡记录</h3>
+      <button id="clear-records" class="btn secondary" style="font-size:13px;padding:6px 12px;">清空记录</button>
+    </div>
+    <div id="results"></div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <!-- 注册各卡池模块（模块化：在 pools 目录下写多个文件并在这里引入） -->
+  <script src="pools/newbie/pool.js"></script>
+  <script src="pools/sample/pool.js"></script>
+</body>
+</html>
