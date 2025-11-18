@@ -733,13 +733,8 @@ window.PoolManager = (function () {
 })();
 
 // 启动（等待异步 init 完成以避免 race 导致回退加载单图）
-window.addEventListener("DOMContentLoaded", () => {
-    // 延迟到所有池子注册完
-    requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-            loadHistorySafe();
-        });
-    });
+window.addEventListener("load", () => {
+    loadHistorySafe();
 });
 
 function loadHistorySafe() {
