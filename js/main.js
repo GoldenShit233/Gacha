@@ -255,12 +255,26 @@ window.PoolManager = (function () {
                     case 2: frontColor = 'linear-gradient(135deg, #e6e6e6, #f6f6f6)'; border = '2px solid #ccc'; break;
                     case 1: frontColor = 'linear-gradient(135deg, #999999, #f6f6f6)'; border = '2px solid #888'; break;
                 }
-                inner.innerHTML = `
-                <div class="card-face card-back"></div>
-                <div class="card-face card-front" style="background:${frontColor};border:${border}">
-                    <img src="icon/${r.icon}" style="width:68px;height:68px;object-fit:cover">
-                    <div style="position:absolute;bottom:6px;font-size:12px">${r.name}</div>
-                </div>`;
+                // inner.innerHTML = `
+                // <div class="card-face card-back"></div>
+                // <div class="card-face card-front" style="background:${frontColor};border:${border}">
+                //     <img src="icon/${r.icon}" style="width:68px;height:68px;object-fit:cover">
+                //     <div style="position:absolute;bottom:6px;font-size:12px">${r.name}</div>
+                // </div>`;
+                // 替换为以下动态构建（只替换此区域）
+                const cardFront = document.createElement('div');
+                cardFront.className = 'card-face card-front';
+                cardFront.style.background = frontColor;
+                cardFront.style.border = border;
+                const iconEl = createIconElement(r.icon || 'placeholder.svg', 68, 'item-icon');
+                cardFront.appendChild(iconEl);
+                const nameDiv = document.createElement('div');
+                nameDiv.style.position = 'absolute';
+                nameDiv.style.bottom = '6px';
+                nameDiv.style.fontSize = '12px';
+                nameDiv.textContent = r.name;
+                cardFront.appendChild(nameDiv);
+                inner.appendChild(cardFront);
                 c.appendChild(inner); cardsEl.appendChild(c);
             });
 
@@ -431,8 +445,11 @@ window.PoolManager = (function () {
         (s.records || []).forEach(r => {
             r.results.forEach((item, idx) => {
                 const el = document.createElement('div'); el.className = 'result-item';
-                const icon = document.createElement('img'); icon.src = 'icon/' + (item?.icon || 'placeholder.svg');
-                el.appendChild(icon);
+                // const icon = document.createElement('img'); icon.src = 'icon/' + (item?.icon || 'placeholder.svg');
+                // el.appendChild(icon);
+                // 替换为：
+                const iconEl = createIconElement(item?.icon || 'placeholder.svg', 36, 'result-icon');
+                el.appendChild(iconEl);
                 const txt = document.createElement('div'); txt.innerHTML = `<div style="font-weight:600">抽卡结果 - ${r.pool}</div><div style="font-size:12px;color:#9fbadb">${r.time}${r.results.length > 1 ? ` #${idx + 1}` : ''}</div>`;
                 el.appendChild(txt); wrap.appendChild(el);
             });
@@ -552,6 +569,58 @@ window.PoolManager = (function () {
         return arr[arr.length - 1];
     }
 
+    // 新：加载 manifest 并预加载 atlas 图片
+    let __atlasManifest = null;
+    async function loadAtlasManifest(manifestPath = 'assets/atlas/manifest.json') {
+        try {
+            const res = await fetch(manifestPath, { cache: 'no-cache' });
+            if (!res.ok) { __atlasManifest = null; return; }
+            __atlasManifest = await res.json();
+            // ensure basePath exists (manifest.basePath may be relative)
+            __atlasManifest.basePath = __atlasManifest.basePath || manifestPath.replace(/\/manifest\.json$/, '');
+            // normalize path (remove trailing slash if any)
+            __atlasManifest.basePath = __atlasManifest.basePath.replace(/\/$/, '');
+            // atlasSize fallback
+            __atlasManifest.atlasSize = __atlasManifest.atlasSize || (__atlasManifest.atlasSize === 0 ? 0 : null);
+            // 预加载所有不同的 atlas 文件 to warm browser cache
+            const atlasFiles = new Set(Object.values(__atlasManifest.map || {}).map(m => m.atlas));
+            atlasFiles.forEach(fname => {
+                const img = new Image();
+                img.src = `${__atlasManifest.basePath}/${fname}`;
+            });
+        } catch (e) {
+            __atlasManifest = null;
+        }
+    }
+
+    // 创建图标元素：优先用 atlas（背景图 + background-position），否则回退到 <img src="icon/...">
+    function createIconElement(filename, size = 68, className = 'item-icon') {
+        const useAtlas = !!(__atlasManifest && __atlasManifest.map && __atlasManifest.map[filename]);
+        const el = document.createElement(useAtlas ? 'div' : 'img');
+        if (useAtlas) {
+            const meta = __atlasManifest.map[filename];
+            const atlasUrl = `${__atlasManifest.basePath}/${meta.atlas}`;
+            el.className = className;
+            el.style.width = (meta.w || size) + 'px';
+            el.style.height = (meta.h || size) + 'px';
+            el.style.backgroundImage = `url("${atlasUrl}")`;
+            el.style.backgroundPosition = `-${meta.x}px -${meta.y}px`;
+            // 将 atlasSize 作为 background-size（确保定位与像素不被拉伸）
+            if (__atlasManifest.atlasSize) {
+                el.style.backgroundSize = `${__atlasManifest.atlasSize}px ${__atlasManifest.atlasSize}px`;
+            } else {
+                el.style.backgroundSize = 'auto';
+            }
+        } else {
+            // img fallback
+            el.src = 'icon/' + (filename || 'placeholder.svg');
+            el.width = size; el.height = size;
+            el.className = className;
+            el.style.objectFit = 'cover';
+        }
+        return el;
+    }
+
     // 初始化
     function init() {
         updateTopbar();
@@ -578,6 +647,8 @@ window.PoolManager = (function () {
                 }
             };
         }
+        // 异步加载 atlas manifest（存在则立即生效）
+        try { loadAtlasManifest('assets/atlas/manifest.json'); } catch (e) { /* ignore */ }
     }
 
     // 复制到剪贴板（优先使用 navigator.clipboard）

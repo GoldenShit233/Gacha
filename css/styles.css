@@ -316,3 +316,21 @@ body {
         overflow: auto
     }
 }
+
+.card-front .item-icon,
+.result-item .result-icon {
+    display: inline-block;
+    background-repeat: no-repeat;
+    background-size: auto;
+    background-position: 0 0;
+    border-radius: 6px;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    image-rendering: -moz-crisp-edges;
+    -webkit-optimize-contrast: optimize-contrast;
+    -webkit-image-rendering: pixelated;
+}
+
+/* 默认尺寸占位（会被 inline style 覆盖） */
+.card-front .item-icon { width:68px; height:68px; }
+.result-item .result-icon { width:36px; height:36px; }
