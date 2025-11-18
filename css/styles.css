@@ -1,0 +1,318 @@
+:root {
+    --bg: #0f1724;
+    --card-back: #22293a;
+    --accent: #ffd166;
+    --text: #e6eef8;
+}
+
+* {
+    box-sizing: border-box
+}
+
+body {
+    margin: 0;
+    font-family: Segoe UI, Arial, Helvetica, sans-serif;
+    background: linear-gradient(180deg, #071126 0%, #0f1724 100%);
+    color: var(--text);
+    min-height: 100vh
+}
+
+.topbar {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(4px);
+    padding: 8px 18px;
+    border-radius: 999px;
+    display: flex;
+    gap: 20px;
+    align-items: center
+}
+
+.topbar .auto-copy {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+}
+
+.container {
+    padding: 90px 20px 260px
+}
+
+.pools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    justify-content: flex-start
+}
+
+.pool-card {
+    width: 480px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0.12));
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6)
+}
+
+.pool-hero {
+    height: 160px;
+    border-radius: 6px;
+    background: #162634;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden
+}
+
+/* 保底标识 */
+.guarantee-badge {
+    background: linear-gradient(180deg,#fff9e0,#fff1b8);
+    color:#1b2b00;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+}
+
+.pool-hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.95);
+    /* hero 图不使用硬缩放，保留平滑渲染 */
+}
+
+/* 把像素化仅应用到卡牌 / 结果图标 / 卡组缩略图等需要硬缩放的位置 */
+.card-front img,
+.card-face img,
+.cards img,
+.result-item img {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    image-rendering: -moz-crisp-edges;
+    -webkit-optimize-contrast: optimize-contrast;
+    -webkit-image-rendering: pixelated;
+}
+
+.pool-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 10px
+}
+
+.pool-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center
+}
+
+.btn {
+    background: linear-gradient(180deg, #2a6bf0, #1a4bd8);
+    border: none;
+    color: white;
+    padding: 10px 14px;
+    border-radius: 6px;
+    cursor: pointer
+}
+
+.btn.secondary {
+    background: linear-gradient(180deg, #444b5a, #2e323b)
+}
+
+.btn.disabled,
+.btn:disabled {
+    background: linear-gradient(180deg, #888, #aaa);
+    color: #eee;
+    cursor: not-allowed;
+    opacity: 0.6
+}
+
+.info {
+    display: flex;
+    gap: 6px;
+    align-items: center
+}
+
+.pill {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 13px
+}
+
+.result-list {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, #071126 0%, #071022 60%);
+    padding: 12px 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.03);
+    max-height: 220px;
+    overflow: auto
+}
+
+.result-item {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.02)
+}
+
+.result-item img {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    image-rendering: -moz-crisp-edges;
+    -webkit-optimize-contrast: optimize-contrast;
+    -webkit-image-rendering: pixelated;
+}
+
+/* Modal & animation */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000
+}
+
+.modal {
+    width: 90%;
+    max-width: 920px;
+    background: linear-gradient(180deg, #071129, #0d2233);
+    border-radius: 12px;
+    padding: 16px;
+    color: var(--text);
+    position: relative
+}
+
+.confirm {
+    display: flex;
+    gap: 12px;
+    align-items: center
+}
+
+.box-stage {
+    height: 300px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center
+}
+
+.box {
+    width: 220px;
+    height: 120px;
+    background: #0b2a46;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    transform: translateY(0);
+    transition: transform 600ms cubic-bezier(.2, .9, .2, 1)
+}
+
+.box.up {
+    transform: translateY(-160px)
+}
+
+.cards {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: flex-end;
+    padding: 8px
+}
+
+.card {
+    width: 76px;
+    height: 110px;
+    background: var(--card-back);
+    border-radius: 6px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 1000px;
+    position: relative;
+    overflow: visible;
+}
+
+.card-inner {
+    position: absolute;
+    left: 0; top: 0;
+    width: 100%;
+    height: 100%;
+    transition: transform 600ms cubic-bezier(.4,1.6,.4,1);
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+
+.card.flipped .card-inner {
+    transform: rotateY(180deg)
+}
+
+.card-face {
+    position: absolute;
+    left: 0; top: 0; right: 0; bottom: 0;
+    backface-visibility: hidden;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.card-back {
+    background: linear-gradient(135deg, #1b2433, #0f1724);
+    z-index: 1;
+}
+
+.card-front {
+    transform: rotateY(180deg);
+    background: linear-gradient(180deg, #fff, #eee);
+    color: #111;
+    z-index: 2;
+}
+
+.glow {
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    filter: blur(32px);
+    opacity: 0.85;
+    transition: opacity 0.3s;
+}
+
+.skip {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer
+}
+
+/* 小屏优化 */
+@media(max-width:520px) {
+    .pool-card {
+        width: 100%
+    }
+
+    .cards {
+        overflow: auto
+    }
+}
