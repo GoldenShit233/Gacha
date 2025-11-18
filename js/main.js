@@ -456,6 +456,14 @@ window.PoolManager = (function () {
         });
     }
 
+    function loadHistorySafe() {
+        try {
+            renderResults(); // 原本的渲染函数
+        } catch (e) {
+            console.warn("历史记录加载失败（可能是首屏图片未准备好），已自动忽略", e);
+        }
+    }
+
     // 单次抽卡逻辑：返回 {id,name,icon,rank}
     function singleDraw(cfg, pstate) {
         // 基础概率（假定，若 cfg.probabilities 指定则使用）
@@ -736,12 +744,3 @@ window.PoolManager = (function () {
 window.addEventListener("load", () => {
     loadHistorySafe();
 });
-
-function loadHistorySafe() {
-    try {
-        renderResults(); // 原本的渲染函数
-    } catch (e) {
-        console.warn("历史记录加载失败（可能是首屏图片未准备好），已自动忽略", e);
-    }
-}
-
