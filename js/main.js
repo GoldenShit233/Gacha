@@ -2,6 +2,7 @@
 window.PoolManager = (function () {
     const pools = [];
     const root = document.getElementById('pools');
+    const baseProbabilities = { 6: 0.02, 5: 0.05, 4: 0.10, 3: 0.20, 2: 0.15, 1: 0.48 };
 
     function register(pool) {
         pools.push(pool);
@@ -96,16 +97,16 @@ window.PoolManager = (function () {
                     const main4code = cfg.main4code || 6;
                     const main3code = cfg.main3code || 5;
                     const pityStart = cfg.pityStart || 50;
-                    const incr = (cfg.pityIncrementPerDraw || 0) / 100;
+                    const incr = (cfg.pityIncrementPerDraw || 1) / 100;
                     const drawn = (pstate.drawnCount || 0);
                     const since4 = (typeof pstate.last4Seen === 'number') ? (drawn - pstate.last4Seen) : drawn;
                     const since3 = (typeof pstate.last3Seen === 'number') ? (drawn - pstate.last3Seen) : drawn;
-                     // 当 since4 为 0 时不显示 pity 信息
-                     if (pityEl) {
+                    // 当 since4 为 0 时不显示 pity 信息
+                    if (pityEl) {
                         if (since4 > 0) {
                             let pityText = `无4级次数：${since4}`;
                             if (since4 >= pityStart && incr > 0) {
-                                const base = (cfg.probabilities || {})[main4code] || 0;
+                                const base = (cfg.probabilities || baseProbabilities)[main4code] || 0.02;
                                 const extra = (since4 - pityStart + 1) * incr;
                                 const current4Prob = Math.max(0, base + extra);
                                 if (current4Prob > 0) {
@@ -117,20 +118,20 @@ window.PoolManager = (function () {
                         } else {
                             pityEl.style.display = 'none';
                         }
-                     }
+                    }
 
                     // 如果卡池配置了“必出≥3级”的保底（兼容多种写法）
                     const guarantee3X = Number.isInteger(cfg.guaranteeAtLeast3Within) ? cfg.guaranteeAtLeast3Within
-                         : Number.isInteger(cfg.guaranteeWithin) ? cfg.guaranteeWithin
-                         : Number.isInteger(cfg.guarantee3Within) ? cfg.guarantee3Within
-                         : (cfg.guaranteeAtLeast3Within === true || cfg.guarantee3 === true || cfg.guarantee3Within === true) ? 10 : null;
- 
-                     // 识别 4 级保底配置（21抽内必出4级等）
-                     const guarantee4X = Number.isInteger(cfg.guaranteeAtLeast4Within) ? cfg.guaranteeAtLeast4Within
-                         : Number.isInteger(cfg.guarantee4Within) ? cfg.guarantee4Within
-                         : Number.isInteger(cfg.guarantee4) ? cfg.guarantee4
-                         : (cfg.guaranteeAtLeast4Within === true || cfg.guarantee4 === true) ? 21 : null;
-                        
+                        : Number.isInteger(cfg.guaranteeWithin) ? cfg.guaranteeWithin
+                            : Number.isInteger(cfg.guarantee3Within) ? cfg.guarantee3Within
+                                : (cfg.guaranteeAtLeast3Within === true || cfg.guarantee3 === true || cfg.guarantee3Within === true) ? 10 : null;
+
+                    // 识别 4 级保底配置（21抽内必出4级等）
+                    const guarantee4X = Number.isInteger(cfg.guaranteeAtLeast4Within) ? cfg.guaranteeAtLeast4Within
+                        : Number.isInteger(cfg.guarantee4Within) ? cfg.guarantee4Within
+                            : Number.isInteger(cfg.guarantee4) ? cfg.guarantee4
+                                : (cfg.guaranteeAtLeast4Within === true || cfg.guarantee4 === true) ? 21 : null;
+
                     // 剩余抽数 = X - drawsSinceLastHit（若 lastSeen 无值则视为从头计算）
                     const remaining3 = guarantee3X ? Math.max(0, guarantee3X - since3) : null;
                     const remaining4 = guarantee4X ? Math.max(0, guarantee4X - since4) : null;
@@ -138,9 +139,9 @@ window.PoolManager = (function () {
                     // 判断是否在当前保底窗口内已命中（即：在最近 guaranteeX 抽内曾出现过对应等级）
                     const alreadyGot3 = !!(guarantee3X && typeof pstate.last3Seen === 'number' && (drawn - pstate.last3Seen) < guarantee3X);
                     const alreadyGot4 = !!(guarantee4X && typeof pstate.last4Seen === 'number' && (drawn - pstate.last4Seen) < guarantee4X);
- 
-                     // 在 badge（卡面右上）显示单条优先信息：优先 4 级保底，其次 3 级保底；如果已触发或剩余为0则不显示
-                     if (badgeEl) {
+
+                    // 在 badge（卡面右上）显示单条优先信息：优先 4 级保底，其次 3 级保底；如果已触发或剩余为0则不显示
+                    if (badgeEl) {
                         if (guarantee4X && !alreadyGot4 && remaining4 > 0) {
                             badgeEl.style.display = 'block';
                             badgeEl.textContent = `${remaining4}次寻访内必出4级道具`;
@@ -154,11 +155,11 @@ window.PoolManager = (function () {
                         } else {
                             badgeEl.style.display = 'none';
                         }
-                     }
-                 } catch (e) { /* ignore display errors */ }
-             }
-         });
-     }
+                    }
+                } catch (e) { /* ignore display errors */ }
+            }
+        });
+    }
 
     // 本地存储和累计消耗
     function getState() {
@@ -179,25 +180,15 @@ window.PoolManager = (function () {
     function openConfirm(cfg, count) {
         const modalRoot = document.getElementById('modal-root');
         modalRoot.innerHTML = '';
+        modalRoot.style.maxWidth = '360px';
         const overlay = document.createElement('div'); overlay.className = 'modal-overlay';
         const modal = document.createElement('div'); modal.className = 'modal';
-        modal.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:16px;"><div>从【${cfg.name}】抽取 ${count} 次</div><div class="skip" id="skip-btn">跳过</div></div>
+        modal.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:16px;"><div>从【${cfg.name}】抽取 ${count} 次</div>
             <div class="confirm" style="font-size:15px;padding:10px 0 0 0;"><div>确认消耗 ${count === 10 ? cfg.costTen : cfg.costSingle} 美分？</div><div style="margin-left:auto"><button class="btn" id="do-draw">抽卡</button> <button class="btn secondary" id="cancel">取消</button></div></div>
             <div class="cards" id="cards"></div>`;
         overlay.appendChild(modal); modalRoot.appendChild(overlay);
-
         const cancel = modal.querySelector('#cancel'); const doDraw = modal.querySelector('#do-draw');
-        const skip = modal.querySelector('#skip-btn');
         cancel.onclick = () => { modalRoot.innerHTML = '' };
-        skip.onclick = () => {
-            overlay.dataset.skip = '1';
-            // 立即翻开所有卡片
-            const cardsEl = modal.querySelector('#cards');
-            if (cardsEl) {
-                Array.from(cardsEl.querySelectorAll('.card')).forEach(c => c.classList.add('flipped'));
-            }
-        };
-
         doDraw.onclick = async () => {
             // 先检查剩余可抽次数，避免扣钱却没有抽取到结果
             try {
@@ -216,22 +207,23 @@ window.PoolManager = (function () {
             // 立即刷新卡池状态（last3Seen/last4Seen 已由 drawMany 更新）
             try { updatePoolButtons(); } catch (e) { /* ignore */ }
 
-             // 自动复制 Lua 脚本（若开关开启）
-             try {
-                 const autoCopy = localStorage.getItem('auto_copy_isaac') === '1';
-                 if (autoCopy) {
-                     const script = buildIsaacScript(results, cost);
-                     const ok = await copyToClipboard(script);
-                     if (ok) {
-                         showTempNotice('已复制 Lua 脚本到剪贴板');
-                     } else {
-                         showTempNotice('复制失败，请允许剪贴板权限');
-                     }
-                 }
-             } catch (e) { console.warn('auto copy error', e); }
+            // 自动复制 Lua 脚本（若开关开启）
+            try {
+                const autoCopy = localStorage.getItem('auto_copy_isaac') === '1';
+                if (autoCopy) {
+                    const script = buildIsaacScript(results, cost);
+                    const ok = await copyToClipboard(script);
+                    if (ok) {
+                        showTempNotice('已复制 Lua 脚本到剪贴板');
+                    } else {
+                        showTempNotice('复制失败，请允许剪贴板权限');
+                    }
+                }
+            } catch (e) { console.warn('auto copy error', e); }
             // 关闭当前弹窗
             modalRoot.innerHTML = '';
-
+            modalRoot.style.maxWidth = '920px';
+            skipBtn.style.display = "block";
             // 创建独立抽卡结果弹窗
             const resultOverlay = document.createElement('div'); resultOverlay.className = 'modal-overlay';
             const resultModal = document.createElement('div'); resultModal.className = 'modal';
@@ -241,6 +233,22 @@ window.PoolManager = (function () {
 
             // 填充卡牌
             const cardsEl = resultModal.querySelector('#result-cards'); cardsEl.innerHTML = '';
+
+            function chooseCardLayout(cardsEl) {
+                const containerWidth = cardsEl.clientWidth;
+                const gap = 10;
+                const width10 = containerWidth / 10 - 9;
+                cardsEl.classList.remove("row-10", "row-5");
+                if (width10 >= 32) {
+                    cardsEl.classList.add("row-10");
+                } else {
+                    cardsEl.classList.add("row-5");
+                }
+            }
+
+            chooseCardLayout(cardsEl);
+            window.addEventListener("resize", () => chooseCardLayout(cardsEl));
+
             results.forEach(r => {
                 const c = document.createElement('div'); c.className = 'card';
                 const inner = document.createElement('div'); inner.className = 'card-inner';
@@ -255,18 +263,13 @@ window.PoolManager = (function () {
                     case 2: frontColor = 'linear-gradient(135deg, #e6e6e6, #f6f6f6)'; border = '2px solid #ccc'; break;
                     case 1: frontColor = 'linear-gradient(135deg, #999999, #f6f6f6)'; border = '2px solid #888'; break;
                 }
-                // inner.innerHTML = `
-                // <div class="card-face card-back"></div>
-                // <div class="card-face card-front" style="background:${frontColor};border:${border}">
-                //     <img src="icon/${r.icon}" style="width:68px;height:68px;object-fit:cover">
-                //     <div style="position:absolute;bottom:6px;font-size:12px">${r.name}</div>
-                // </div>`;
                 // 替换为以下动态构建（只替换此区域）
                 const cardFront = document.createElement('div');
                 cardFront.className = 'card-face card-front';
                 cardFront.style.background = frontColor;
                 cardFront.style.border = border;
-                const iconEl = createIconElement(r.icon || 'placeholder.svg', 68, 'item-icon');
+                const iconEl = createIconElement(r.icon || 'placeholder.svg', 32, 'item-icon');
+                iconEl.style.zoom = '2.0';
                 cardFront.appendChild(iconEl);
                 const nameDiv = document.createElement('div');
                 nameDiv.style.position = 'absolute';
@@ -315,12 +318,13 @@ window.PoolManager = (function () {
                 await wait(200);
                 cardEls[i].classList.add('flipped');
             }
+            skipBtn.style.display = "none";
 
             // 存储抽卡记录
             pushRecord(cfg, results);
 
             // 等待用户关闭
-            await wait(300);
+            await wait(50);
             resultOverlay.addEventListener('click', () => {
                 modalRoot.innerHTML = '';
                 updatePoolButtons(); // 抽完后刷新卡池状态
@@ -351,8 +355,8 @@ window.PoolManager = (function () {
             : Number.isInteger(cfg.guarantee4Within) ? cfg.guarantee4Within
                 : Number.isInteger(cfg.guarantee4) ? cfg.guarantee4
                     : (cfg.guaranteeAtLeast4Within === true || cfg.guarantee4 === true) ? 21 : null;
-                
-    for (let i = 0; i < n; i++) {
+
+        for (let i = 0; i < n; i++) {
             // 处理最大抽取限制
             if (cfg.maxDraws && pstate.drawnCount >= cfg.maxDraws) {
                 // 如果配置保证在 maxDraws 之内必定出4，则在最后抽取强制4
@@ -394,7 +398,7 @@ window.PoolManager = (function () {
                 const since3 = (typeof pstate.last3Seen === 'number') ? (drawnNow - pstate.last3Seen) : drawnNow;
                 if (since3 >= (guarantee3X - 1)) {
                     // 计算当前 4 级 概率（考虑 pity），保留该概率不变
-                    const base = cfg.probabilities || { 6: 0.02, 5: 0.05, 4: 0.10, 3: 0.20, 2: 0.15, 1: 0.48 };
+                    const base = cfg.probabilities || baseProbabilities;
                     const pityStart = cfg.pityStart || 50;
                     const incr = (cfg.pityIncrementPerDraw || 0) / 100;
                     const since4 = (typeof pstate.last4Seen === 'number') ? (drawnNow - pstate.last4Seen) : drawnNow;
@@ -448,7 +452,7 @@ window.PoolManager = (function () {
                 // const icon = document.createElement('img'); icon.src = 'icon/' + (item?.icon || 'placeholder.svg');
                 // el.appendChild(icon);
                 // 替换为：
-                const iconEl = createIconElement(item?.icon || 'placeholder.svg', 36, 'result-icon');
+                const iconEl = createIconElement(item?.icon || 'placeholder.svg', 32, 'result-icon');
                 el.appendChild(iconEl);
                 const txt = document.createElement('div'); txt.innerHTML = `<div style="font-weight:600">抽卡结果 - ${r.pool}</div><div style="font-size:12px;color:#9fbadb">${r.time}${r.results.length > 1 ? ` #${idx + 1}` : ''}</div>`;
                 el.appendChild(txt); wrap.appendChild(el);
@@ -459,7 +463,7 @@ window.PoolManager = (function () {
     // 单次抽卡逻辑：返回 {id,name,icon,rank}
     function singleDraw(cfg, pstate) {
         // 基础概率（假定，若 cfg.probabilities 指定则使用）
-        const base = cfg.probabilities || { 6: 0.02, 5: 0.05, 4: 0.10, 3: 0.20, 2: 0.15, 1: 0.48 };
+        const base = cfg.probabilities || baseProbabilities;
         // 4级在代码中可能标注为 6（按示例）——我们统一处理：cfg.main4code (默认为6)
         const main4code = cfg.main4code || 6;
 
@@ -538,26 +542,26 @@ window.PoolManager = (function () {
         const picked = weightedPick(arr); return picked.key;
     }
 
-	// 从所有 rank >= minRank 的道具中按权重选一个：先按等级概率选择 rank，再在该 rank 内选择 item
-	function pickItemAtLeastRank(cfg, minRank) {
-		const probs = cfg.probabilities || { 6: 0.02, 5: 0.05, 4: 0.10, 3: 0.20, 2: 0.15, 1: 0.48 };
-		const ranks = Object.keys(probs).map(k => parseInt(k)).filter(r => r >= minRank);
-		if (ranks.length === 0) {
-			const list = (cfg.items || []).filter(it => (it.rank || 0) >= minRank);
-			if (list.length === 0) return (cfg.items || [])[Math.floor(Math.random() * (cfg.items || []).length)] || { id: 'none', name: '占位', icon: 'icon/placeholder.svg', rank: minRank };
-			return list[Math.floor(Math.random() * list.length)];
-		}
-		const rankArr = ranks.map(r => ({ key: r, w: Math.max(0, probs[r] || 0) }));
-		const sumRankW = rankArr.reduce((s, a) => s + (a.w || 0), 0);
-		let chosenRank;
-		if (sumRankW <= 0) {
-			chosenRank = ranks[Math.floor(Math.random() * ranks.length)];
-		} else {
-			const picked = weightedPick(rankArr);
-			chosenRank = picked.key;
-		}
-		return pickItemFromTier(cfg, chosenRank);
-	}
+    // 从所有 rank >= minRank 的道具中按权重选一个：先按等级概率选择 rank，再在该 rank 内选择 item
+    function pickItemAtLeastRank(cfg, minRank) {
+        const probs = cfg.probabilities || baseProbabilities;
+        const ranks = Object.keys(probs).map(k => parseInt(k)).filter(r => r >= minRank);
+        if (ranks.length === 0) {
+            const list = (cfg.items || []).filter(it => (it.rank || 0) >= minRank);
+            if (list.length === 0) return (cfg.items || [])[Math.floor(Math.random() * (cfg.items || []).length)] || { id: 'none', name: '占位', icon: 'icon/placeholder.svg', rank: minRank };
+            return list[Math.floor(Math.random() * list.length)];
+        }
+        const rankArr = ranks.map(r => ({ key: r, w: Math.max(0, probs[r] || 0) }));
+        const sumRankW = rankArr.reduce((s, a) => s + (a.w || 0), 0);
+        let chosenRank;
+        if (sumRankW <= 0) {
+            chosenRank = ranks[Math.floor(Math.random() * ranks.length)];
+        } else {
+            const picked = weightedPick(rankArr);
+            chosenRank = picked.key;
+        }
+        return pickItemFromTier(cfg, chosenRank);
+    }
 
     // 加权选择工具：输入 [{key:..., w:...}] 返回选中对象
     function weightedPick(arr) {
@@ -594,7 +598,7 @@ window.PoolManager = (function () {
     }
 
     // 创建图标元素：优先用 atlas（背景图 + background-position），否则回退到 <img src="icon/...">
-    function createIconElement(filename, size = 68, className = 'item-icon') {
+    function createIconElement(filename, size = 32, className = 'item-icon') {
         const useAtlas = !!(__atlasManifest && __atlasManifest.map && __atlasManifest.map[filename]);
         const el = document.createElement(useAtlas ? 'div' : 'img');
         if (useAtlas) {
