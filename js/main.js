@@ -223,7 +223,6 @@ window.PoolManager = (function () {
             // 关闭当前弹窗
             modalRoot.innerHTML = '';
             modalRoot.style.maxWidth = '920px';
-            skipBtn.style.display = "block";
             // 创建独立抽卡结果弹窗
             const resultOverlay = document.createElement('div'); resultOverlay.className = 'modal-overlay';
             const resultModal = document.createElement('div'); resultModal.className = 'modal';
@@ -745,3 +744,4 @@ window.addEventListener('DOMContentLoaded', async () => {
         // 尽量让页面继续工作，即便 atlas 加载/解析异常
     }
 });
+
