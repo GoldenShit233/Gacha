@@ -112,8 +112,8 @@ body {
     background: linear-gradient(180deg, #2a6bf0, #1a4bd8);
     border: none;
     color: white;
-    padding: 10px 14px;
-    border-radius: 6px;
+    padding: 12px;
+    border-radius: 8px;
     cursor: pointer
 }
 
@@ -218,18 +218,17 @@ body {
     background: rgba(255, 255, 255, 0.05);
     padding: 12px 14px;
     border-radius: 10px;
-    margin-bottom: 16px;
 }
 
 .confirm-text {
-    font-size: 15px;
-    margin-bottom: 10px;
+    font-size: 16px;
+    margin-bottom: 32px;
 }
 
 .confirm-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 8px;
+    gap: 16px;
 }
 
 .box-stage {
