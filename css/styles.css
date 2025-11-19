@@ -151,7 +151,8 @@ body {
     padding: 12px 18px;
     border-top: 1px solid rgba(255, 255, 255, 0.03);
     max-height: 220px;
-    overflow: auto
+    overflow: auto;
+    z-index: 10
 }
 
 .result-item {
@@ -333,4 +334,5 @@ body {
 
 /* 默认尺寸占位（会被 inline style 覆盖） */
 .card-front .item-icon { width:68px; height:68px; }
+
 .result-item .result-icon { width:36px; height:36px; }
