@@ -227,6 +227,7 @@ body {
 
 .cards {
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
     justify-content: center;
     align-items: flex-end;
@@ -234,8 +235,8 @@ body {
 }
 
 .card {
-    width: 76px;
-    height: 110px;
+    width: 64px;
+    height: 128px;
     background: var(--card-back);
     border-radius: 6px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
@@ -245,6 +246,14 @@ body {
     perspective: 1000px;
     position: relative;
     overflow: visible;
+}
+
+.cards.row-10 .card {
+    flex: 0 0 calc(10% - 9px);
+}
+
+.cards.row-5 .card {
+    flex: 0 0 calc(20% - 8px);
 }
 
 .card-inner {
@@ -334,5 +343,4 @@ body {
 
 /* 默认尺寸占位（会被 inline style 覆盖） */
 .card-front .item-icon { width:68px; height:68px; }
-
 .result-item .result-icon { width:36px; height:36px; }
