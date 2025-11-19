@@ -180,9 +180,9 @@ window.PoolManager = (function () {
     function openConfirm(cfg, count) {
         const modalRoot = document.getElementById('modal-root');
         modalRoot.innerHTML = '';
-        modalRoot.style.maxWidth = '360px';
         const overlay = document.createElement('div'); overlay.className = 'modal-overlay';
         const modal = document.createElement('div'); modal.className = 'modal';
+        modal.style.maxWidth = '360px';
         modal.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:16px;"><div>从【${cfg.name}】抽取 ${count} 次</div>
             <div class="confirm" style="font-size:15px;padding:10px 0 0 0;"><div>确认消耗 ${count === 10 ? cfg.costTen : cfg.costSingle} 美分？</div><div style="margin-left:auto"><button class="btn" id="do-draw">抽卡</button> <button class="btn secondary" id="cancel">取消</button></div></div>
             <div class="cards" id="cards"></div>`;
@@ -222,10 +222,11 @@ window.PoolManager = (function () {
             } catch (e) { console.warn('auto copy error', e); }
             // 关闭当前弹窗
             modalRoot.innerHTML = '';
-            modalRoot.style.maxWidth = '920px';
+
             // 创建独立抽卡结果弹窗
             const resultOverlay = document.createElement('div'); resultOverlay.className = 'modal-overlay';
             const resultModal = document.createElement('div'); resultModal.className = 'modal';
+            resultModal.style.maxWidth = '360px';
             resultModal.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div>抽卡结果</div><div class="skip" id="skip-result">跳过</div></div>
             <div class="cards" id="result-cards"></div>`;
             resultOverlay.appendChild(resultModal); modalRoot.appendChild(resultOverlay);
@@ -744,4 +745,3 @@ window.addEventListener('DOMContentLoaded', async () => {
         // 尽量让页面继续工作，即便 atlas 加载/解析异常
     }
 });
-
