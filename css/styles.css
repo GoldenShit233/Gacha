@@ -185,7 +185,7 @@ body {
     z-index: 2000
 }
 
-.modal {
+.modal2 {
     width: 90%;
     max-width: 920px;
     background: linear-gradient(180deg, #071129, #0d2233);
@@ -195,10 +195,41 @@ body {
     position: relative
 }
 
-.confirm {
+.modal {
+    width: 360px;
+    background: linear-gradient(180deg, #071129, #0d2233);
+    border-radius: 14px;
+    padding: 20px;
+    color: var(--text);
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+.modal-header {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.modal-confirm {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 12px 14px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+}
+
+.confirm-text {
+    font-size: 15px;
+    margin-bottom: 10px;
+}
+
+.confirm-actions {
     display: flex;
-    gap: 12px;
-    align-items: center
+    justify-content: flex-end;
+    gap: 8px;
 }
 
 .box-stage {
