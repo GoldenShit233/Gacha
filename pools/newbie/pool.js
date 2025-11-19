@@ -1,14 +1,13 @@
-// 新人特惠寻访 卡池模块（示例）
 (function () {
     const cfg = {
         id: 'newbie',
         name: '新人特惠寻访',
-        description: '※寻访池内只有以下4级道具：柯吉猫的头、胎儿博士、圣饼、纵火狂、完美视力。<br/>仅可抽取21次，次数用尽即结束',
+        description: '※寻访池内只有以下4级道具：柯吉猫的头、胎儿博士、圣饼、纵火狂、完美视力。<br/>※仅可抽取21次，次数用尽即结束。',
         hero: 'pools/newbie/hero.png',
         costSingle: 4,
         costTen: 36,
         pityStart: 50,
-        pityIncrementPerDraw: 0.5,
+        pityIncrementPerDraw: 2,
         maxDraws: 21,
         guarantee3: true,
         guarantee4: true,

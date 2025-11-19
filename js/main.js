@@ -47,7 +47,7 @@ window.PoolManager = (function () {
         const infoOverlay = card.querySelector('.pool-info-overlay');
         infoBtn.addEventListener('click', () => {
             if (infoOverlay.style.display === 'none') {
-                infoOverlay.innerHTML = `<div>${cfg.name}<br><br>${cfg.description || '暂无详细说明'}<br><br><span style='font-size:13px;opacity:0.7;'>点击说明按钮关闭</span></div>`;
+                infoOverlay.innerHTML = `<div class='info-content'>${cfg.name}<br><br>${cfg.description || '暂无详细说明'}<br><br><span style='font-size:13px;opacity:0.7;'>点击说明按钮关闭</span></div>`;
                 infoOverlay.style.display = 'flex';
             } else {
                 infoOverlay.style.display = 'none';
@@ -110,7 +110,7 @@ window.PoolManager = (function () {
                                 const extra = (since4 - pityStart + 1) * incr;
                                 const current4Prob = Math.max(0, base + extra);
                                 if (current4Prob > 0) {
-                                    pityText += ` • 当前4级概率：${(current4Prob * 100).toFixed(2)}%`;
+                                    pityText += ` • 当前4级概率：${(current4Prob * 100).toFixed(1)}%`;
                                 }
                             }
                             pityEl.style.display = 'inline-block';
@@ -171,10 +171,6 @@ window.PoolManager = (function () {
         const s = getState(); s.totalCost = (s.totalCost || 0) + n; saveState(s); updateTopbar();
     }
     function updateTopbar() { const s = getState(); document.getElementById('total-cost').innerText = s.totalCost || 0 }
-
-    function showInfo(cfg) {
-        alert(cfg.name + "\n\n点击卡牌图标查看详情。\n特殊规则见配置文件。");
-    }
 
     // 打开确认弹窗并执行抽卡动画
     function openConfirm(cfg, count) {
@@ -446,9 +442,6 @@ window.PoolManager = (function () {
         (s.records || []).forEach(r => {
             r.results.forEach((item, idx) => {
                 const el = document.createElement('div'); el.className = 'result-item';
-                // const icon = document.createElement('img'); icon.src = 'icon/' + (item?.icon || 'placeholder.svg');
-                // el.appendChild(icon);
-                // 替换为：
                 const iconEl = createIconElement(item?.icon || 'placeholder.svg', 32, 'result-icon');
                 el.appendChild(iconEl);
                 const txt = document.createElement('div'); txt.innerHTML = `<div style="font-weight:600">抽卡结果 - ${r.pool}</div><div style="font-size:12px;color:#9fbadb">${r.time}${r.results.length > 1 ? ` #${idx + 1}` : ''}</div>`;
