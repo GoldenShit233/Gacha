@@ -183,8 +183,7 @@ window.PoolManager = (function () {
         const overlay = document.createElement('div'); overlay.className = 'modal-overlay';
         const modal = document.createElement('div'); modal.className = 'modal';
         modal.innerHTML = `<div class="modal-header">从【${cfg.name}】抽取 ${count} 次</div><div class="modal-confirm"><div class="confirm-text">确认消耗 ${count === 10 ? cfg.costTen : cfg.costSingle} 美分？</div>
-        <div class="confirm-actions"><button class="btn" id="do-draw">抽卡</button><button class="btn secondary" id="cancel">取消</button></div></div>
-        <div class="cards" id="cards"></div>`;
+        <div class="confirm-actions"><button class="btn" id="do-draw">抽卡</button><button class="btn secondary" id="cancel">取消</button></div></div>`;
         overlay.appendChild(modal); modalRoot.appendChild(overlay);
         const cancel = modal.querySelector('#cancel'); const doDraw = modal.querySelector('#do-draw');
         cancel.onclick = () => { modalRoot.innerHTML = '' };
